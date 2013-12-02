@@ -5,6 +5,10 @@
 
 typedef roboptim::IpoptSolver::solver_t solver_t;
 
+//Resolution of min 1/2 x^t A x + b^t x with x in [-4, +infinity]
+//and x_1 in [-1.0, 0.7]
+//    x_2 in [-1.3, 1.4]
+//    x_3 in [-2.0, 2.1]
 int main()
 {
     //Definition of the quadratic function
