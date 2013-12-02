@@ -7,6 +7,7 @@ typedef roboptim::IpoptSolver::solver_t solver_t;
 
 int main()
 {
+    //Definition of the quadratic function
     roboptim::Function::matrix_t A( 3,3 );
     roboptim::Function::vector_t b( 3 );
 
@@ -15,30 +16,35 @@ int main()
 
     roboptim::NumericQuadraticFunction f( A, b );
 
+    //Testing f([1,1,1])
     roboptim::Function::vector_t x( 3 );
     x << 1,1,1;
     std::cout << "f(x) = " << f( x ) << std::endl;
 
+    //Definition the constraint x_min < x < x_max
     roboptim::Function::vector_t offset( 3 );
-
     boost::shared_ptr< roboptim::IdentityFunction > c1(
             new roboptim::IdentityFunction( offset ) );
     
+    //Test c([1,1,1])
     roboptim::IdentityFunction c1_el = *c1.get();
     std::cout << "c1(x) = [" << c1_el( x ) << "]" << std::endl;
     
+    //Creation of the problem
     solver_t::problem_t pb ( f );
     std::cout << "problem input size : " << pb.function().inputSize() << std::endl;
     std::cout << "problem output size : " << pb.function().outputSize() << std::endl;
 
-    roboptim::Function::intervals_t function_bounds;
+    //Set bounds for x in f(x)
+    roboptim::Function::intervals_t function_arg_bounds;
     for( unsigned int i=0; i< pb.function().inputSize(); ++i ){
         roboptim::Function::interval_t x_bound = roboptim::Function::makeInterval( -4.0, roboptim::Function::infinity() );
-        function_bounds.push_back( x_bound );
+        function_arg_bounds.push_back( x_bound );
     }
 
-    pb.argumentBounds() = function_bounds;
+    pb.argumentBounds() = function_arg_bounds;
 
+    //Set bounds for constraints: x_min and x_max
     roboptim::Function::intervals_t constraint_bounds;
     roboptim::Function::interval_t c1_0 = roboptim::Function::makeInterval( -1.0, 0.7 );
     roboptim::Function::interval_t c1_1 = roboptim::Function::makeInterval( -1.3, 1.4 );
@@ -47,21 +53,27 @@ int main()
     constraint_bounds.push_back( c1_1 );
     constraint_bounds.push_back( c1_2 );
 
+    //Set scales for the problem
     solver_t::problem_t::scales_t scales(pb.function().inputSize(), 1.0);
     
+    //Add constraint
     pb.addConstraint(
             boost::static_pointer_cast<
       roboptim::GenericLinearFunction<roboptim::EigenMatrixDense>  >
             (c1), constraint_bounds, scales );
 
+    //Set initial guess
     roboptim::NumericQuadraticFunction::argument_t x_init( 3 );
     x_init << 0.4,0.0,0.2;
 
     pb.startingPoint() = x_init;
 
-    //solver
+    //Set path of the roboptim-core-plugin-ipopt.so so that libltdl finds the lib.
+    //The path is detected in the CMakeLists.txt which will substitute the variable PLUGIN_PATH during the compilation
+    //Those two lines can be omitted if the environment variable LD_LIBRARY_PATH contains the path of the plugin
     lt_dlinit();
     lt_dlsetsearchpath (PLUGIN_PATH);
+
     roboptim::SolverFactory<solver_t> factory ("ipopt", pb);
     solver_t& solver = factory ();
 
