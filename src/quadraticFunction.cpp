@@ -49,7 +49,39 @@ int main()
 
     solver_t::problem_t::scales_t scales(pb.function().inputSize(), 1.0);
     
-    //pb.addConstraint( c1, constraint_bounds, scales );
+    pb.addConstraint(
+            boost::static_pointer_cast<
+      roboptim::GenericLinearFunction<roboptim::EigenMatrixDense>  >
+            (c1), constraint_bounds, scales );
 
+    roboptim::NumericQuadraticFunction::argument_t x_init( 3 );
+    x_init << 0.4,0.0,0.2;
+
+    pb.startingPoint() = x_init;
+
+    //solver
+    lt_dlinit();
+    lt_dlsetsearchpath (PLUGIN_PATH);
+    roboptim::SolverFactory<solver_t> factory ("ipopt", pb);
+    solver_t& solver = factory ();
+
+    solver_t::result_t res = solver.minimum ();
+
+    std::cout << solver << std::endl;
+
+    // Check if the minimization has succeed.
+    if (res.which () != solver_t::SOLVER_VALUE)
+    {
+        std::cout << "A solution should have been found. Failing..."
+            << std::endl
+            << boost::get<roboptim::SolverError> (res).what ()
+            << std::endl;
+        return 0;
+    } 
+
+    // Get the result.
+    roboptim::Result& result = boost::get<roboptim::Result> (res);
+    std::cout << "A solution has been found: " << std::endl
+              << result << std::endl;
     return 1;
 }

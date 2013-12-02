@@ -6,7 +6,7 @@ SET(PROJECT_URL "https://github.com/sovannara-hak/roboptim-examples")
 
 SET(CMAKE_CXX_FLAGS "-fpermissive")
 
-find_package(PkgConfig REQUIRED)
+FIND_PACKAGE(PkgConfig REQUIRED)
 
 PKG_CHECK_MODULES(PC_EIGEN3 eigen3>=3.2 REQUIRED)
 PKG_CHECK_MODULES(PC_LOG4CXX liblog4cxx REQUIRED)
