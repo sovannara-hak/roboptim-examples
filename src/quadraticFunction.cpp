@@ -29,6 +29,14 @@ int main()
     roboptim::Function::vector_t offset( 3 );
     boost::shared_ptr< roboptim::IdentityFunction > c1(
             new roboptim::IdentityFunction( offset ) );
+
+    //Definition of another constraint 0 < Ax +b < +infinity
+    roboptim::Function::matrix_t Ac2( 3,3 );
+    roboptim::Function::vector_t bc2( 3 );
+    Ac2 << 2,3,1,7,1,0,3,5,2;
+    bc2 << 4,3,4;
+    boost::shared_ptr< roboptim::NumericLinearFunction > c2(
+            new roboptim::NumericLinearFunction(Ac2, bc2) );
     
     //Test c([1,1,1])
     roboptim::IdentityFunction c1_el = *c1.get();
@@ -57,6 +65,13 @@ int main()
     constraint_bounds.push_back( c1_1 );
     constraint_bounds.push_back( c1_2 );
 
+    //Set bounds for c2
+    roboptim::Function::intervals_t c2_bounds;
+    for( unsigned int i=0; i< pb.function().inputSize(); ++i ){
+        roboptim::Function::interval_t c2_interval = roboptim::Function::makeLowerInterval( 0 );
+        c2_bounds.push_back(c2_interval);
+    }
+
     //Set scales for the problem
     solver_t::problem_t::scales_t scales(pb.function().inputSize(), 1.0);
     
@@ -66,6 +81,12 @@ int main()
       roboptim::GenericLinearFunction<roboptim::EigenMatrixDense>  >
             (c1), constraint_bounds, scales );
 
+    
+    pb.addConstraint(
+            boost::static_pointer_cast<
+      roboptim::GenericLinearFunction<roboptim::EigenMatrixDense> >
+            (c2), c2_bounds, scales);
+      
     //Set initial guess
     roboptim::NumericQuadraticFunction::argument_t x_init( 3 );
     x_init << 0.4,0.0,0.2;
