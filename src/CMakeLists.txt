@@ -28,6 +28,10 @@ SET(QUAD_FUNC_SRC
     quadraticFunction.cpp
 )
 
+SET(TEST_MATRX_SRC
+    testMatrix.cpp
+)
+
 MACRO(BUILD_EXE src exec_name)
     ADD_EXECUTABLE(
         ${exec_name}
@@ -56,3 +60,4 @@ MACRO(BUILD_EXE src exec_name)
 ENDMACRO(BUILD_EXE)
 
 BUILD_EXE(QUAD_FUNC_SRC QuadraticFunction)
+BUILD_EXE(TEST_MATRX_SRC TestMatrix)
