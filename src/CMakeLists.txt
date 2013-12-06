@@ -28,27 +28,31 @@ SET(QUAD_FUNC_SRC
     quadraticFunction.cpp
 )
 
-ADD_EXECUTABLE(
-    QuadraticFunction
-    ${QUAD_FUNC_SRC}
-)
+MACRO(BUILD_EXE src exec_name)
+    ADD_EXECUTABLE(
+        ${exec_name}
+        ${${src}}
+    )
 
-SET_TARGET_PROPERTIES(
-    QuadraticFunction
-    PROPERTIES COMPILE_FLAGS
-    "-DPLUGIN_PATH='\"${PC_ROBOPTIM-CORE_PLUGINDIR}\"'"
-)
+    SET_TARGET_PROPERTIES(
+        ${exec_name}
+        PROPERTIES COMPILE_FLAGS
+        "-DPLUGIN_PATH='\"${PC_ROBOPTIM-CORE_PLUGINDIR}\"'"
+    )
 
-TARGET_LINK_LIBRARIES(
-    QuadraticFunction
-    ${PC_EIGEN3_LIBRARIES}
-    ${PC_LOG4CXX_LIBRARIES}
-    ${PC_ROBOPTIM-CORE_LIBRARIES}
-    ${PC_ROBOPTIM-CORE-PLUGIN-IPOPT_LIBRARIES}
-    ${Boost_LIBRARIES}
-)
+    TARGET_LINK_LIBRARIES(
+        ${exec_name}
+        ${PC_EIGEN3_LIBRARIES}
+        ${PC_LOG4CXX_LIBRARIES}
+        ${PC_ROBOPTIM-CORE_LIBRARIES}
+        ${PC_ROBOPTIM-CORE-PLUGIN-IPOPT_LIBRARIES}
+        ${Boost_LIBRARIES}
+    )
 
-INSTALL(
-    TARGETS QuadraticFunction
-    DESTINATION bin
-)
+    INSTALL(
+        TARGETS ${exec_name}
+        DESTINATION bin
+    )
+ENDMACRO(BUILD_EXE)
+
+BUILD_EXE(QUAD_FUNC_SRC QuadraticFunction)
